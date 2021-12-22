@@ -1,0 +1,49 @@
+name: Arduino Compile and Release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '*.ino'
+      - '*.h'
+      - '*.pde'
+      - '*.cpp'
+      - '*.c'
+
+  workflow_dispatch:
+
+jobs:
+  compile_and_release:
+    name: Compile Sketch and Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AutoBoard
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Find Semantic Version Number
+        uses: paulhatch/semantic-version@v4.0.2
+        id: get_version
+        with:
+          change_path: "'*.ino' '*.h' '*.pde' '*.cpp' '*.c'"
+
+      - name: Compile Sketch
+        uses: ArminJo/arduino-test-compile@v3
+        with:
+          arduino-platform: arduino:samd
+          arduino-board-fqbn: arduino:samd:nano_33_iot
+          required-libraries: ""
+          cli-version: 0.13.0
+          sketch-names: "AutoBoard.ino"
+          set-build-path: true
+
+      - name: Publish (Pre-)Release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: /home/runner/AutoBoard/build/arduino.samd.nano_33_iot/*
+          prerelease: true
+          generate_release_notes: true
+          tag_name: ${{ steps.get_version.outputs.version_tag }}

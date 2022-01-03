@@ -1,12 +1,21 @@
-name: "Arduino Checks"
+name: "Lint Arduino Sketch"
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-  lint:
+  arduino-lint:
+    name: Lint Arduino Sketch
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: arduino/arduino-lint-action@v1
+      - name: Checkout AutoBoard
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Lint Sketch
+        uses: arduino/arduino-lint-action@v1
         with:
           project-type: sketch
+          compliance: strict

@@ -1,0 +1,25 @@
+name: Arduino Test Compile
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test_compile:
+    name: Test Compile Sketch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AutoBoard
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Compile Sketch
+        uses: ArminJo/arduino-test-compile@v3
+        with:
+          arduino-platform: arduino:samd
+          arduino-board-fqbn: arduino:samd:nano_33_iot
+          required-libraries: ""
+          cli-version: 0.13.0
+          sketch-names: "AutoBoard.ino"
+          set-build-path: true
